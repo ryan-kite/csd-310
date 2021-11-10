@@ -1,20 +1,26 @@
-""""
-Ryan Kite
-CSD 310
-Module 5
+""" 
+    Ryan Kite
+    CSD 310
+    Module 5
+    Description: Test program for connecting to a 
+                 MongoDB Atlas cluster
 """
-def __main__():
-    is_get = True
-    while is_get:
-        from pymongo import MongoClient
-        url = 'mongodb+srv://admin:admin@kite.jjgxi.mongodb.net/pytech?retryWrites=true&w=majority'
-        client = MongoClient(url)
-        db = client.pytech
-        collection = db.students
-        print("\n-- Pytech Collection List --")
-        print(db.list_collection_names())
-        is_get = input("\n\nEnd of program press any key to exit: ")
-        if is_get != True:
-            break
 
-__main__()
+""" import statements """
+from pymongo import MongoClient
+
+# MongoDB connection string 
+url = "mongodb+srv://admin:admin@kite.jjgxi.mongodb.net/pytech?retryWrites=true&w=majority"
+
+# connect to the MongoDB cluster 
+client = MongoClient(url)
+
+# connect pytech database
+db = client.pytech
+
+# show the connected collections 
+print("\n -- Pytech COllection List --")
+print(db.list_collection_names())
+
+# show an exit message
+input("\n\n  End of program, press any key to exit... ")
