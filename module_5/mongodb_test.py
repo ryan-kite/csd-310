@@ -1,26 +1,30 @@
 """ 
-    Ryan Kite
-    CSD 310
-    Module 5
-    Description: Test program for connecting to a 
-                 MongoDB Atlas cluster
+Ryan Kite
+CSD 310
+Nov 10, 2021
+Module 5
+Assignment 5.2
+Description: 
+Collection Creation
 """
 
 """ import statements """
 from pymongo import MongoClient
 
-# MongoDB connection string 
+# connection uri
 url = "mongodb+srv://admin:admin@kite.jjgxi.mongodb.net/pytech?retryWrites=true&w=majority"
 
-# connect to the MongoDB cluster 
+# connect to mongo
 client = MongoClient(url)
 
 # connect pytech database
 db = client.pytech
 
-# show the connected collections 
-print("\n -- Pytech COllection List --")
-print(db.list_collection_names())
+# display collections 
+print("\n Pytech \n")
 
-# show an exit message
-input("\n\n  End of program, press any key to exit... ")
+print("List collection names: ", db.list_collection_names())
+print("\n")
+print(dir(db))
+
+
