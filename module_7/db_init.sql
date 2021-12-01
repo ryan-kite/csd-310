@@ -3,7 +3,7 @@
     Author: Professor Krasso
     Date: 15 July 2020
     Description: pysports database initialization script.
-    Used By Student: Ryan Kite for Module 7/8 project poopulate database
+    Used By Student: Ryan Kite for Module 7/8 project populate database
 */
 
 -- drop test user if exists 
