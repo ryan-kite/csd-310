@@ -59,7 +59,8 @@ try:
         print(f"Last name: {item[2]}")
         print(f"Team name: {item[3]}\n")
 
-
+    db.commit()
+    
     input("\n\tPress any key to abort program...")
 
 except mysql.connector.Error as err:
