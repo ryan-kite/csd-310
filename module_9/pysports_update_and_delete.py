@@ -1,3 +1,10 @@
+'''
+Ryan Kite
+CSD 310 
+Module 9 
+Assignement 9.3
+'''
+
 import mysql.connector
 from mysql.connector import errorcode
 
@@ -60,7 +67,7 @@ try:
         print(f"Team name: {item[3]}\n")
 
     db.commit()
-    
+
     input("\n\tPress any key to abort program...")
 
 except mysql.connector.Error as err:

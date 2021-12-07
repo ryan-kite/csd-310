@@ -1,4 +1,11 @@
 
+'''
+Ryan Kite
+CSD 310 
+Module 8 
+Assignement 8.2
+'''
+
 import mysql.connector
 from mysql.connector import errorcode
 

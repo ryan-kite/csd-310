@@ -1,3 +1,10 @@
+'''
+Ryan Kite
+CSD 310 
+Module 9 
+Assignement 9.2
+'''
+
 import mysql.connector
 from mysql.connector import errorcode
 
