@@ -29,9 +29,9 @@ DB = None
 
 # loader
 import itertools, sys
-spinner = itertools.cycle('▖▘▝▗')
+spinner = itertools.cycle('◐◓◑◒')
 def run_spinner():
-    for i in range(12):
+    for i in range(16):
         sys.stdout.write(next(spinner))   # write the next character
         sys.stdout.flush()                # flush stdout buffer (actual character display)
         sys.stdout.write('\b')            # erase the last written char
@@ -173,17 +173,22 @@ def show_wishlist_menu():
     print(f"{logo}: Press [ 3 ] Remove Book")
     print(f"{logo}: Press [ x ] Exit to Main menu")
     result = input(f"\n{logo}: Make a selection: >>> ")
-    print(f"{logo}: You selected: [ {result} ]")
-    if result == '1':
-        show_wishlist()
-    elif result == '2':
-        show_available_books()
-    elif result == '3':
-        remove_book()     
-    elif result.lower().strip() == 'x':
-        USER_ID = 0 
-    else:
-        print(f"\n{logo}: *** Whoa let's try that again...👀")        
+    try:
+        print(f"{logo}: You selected: [ {result} ]")
+        run_spinner()
+        if result == '1':
+            show_wishlist()
+        elif result == '2':
+            show_available_books()
+        elif result == '3':
+            remove_book()     
+        elif result.lower().strip() == 'x':
+            USER_ID = 0 
+        else:
+            print(f"{logo}: Input not recognized: [ {result} ]...👀")
+    except Exception as e:
+        print(f"{logo}: Whoa let's try that again: [ {e} ]...👀")
+        pass
 
 # display main menu
 def show_menu():
@@ -195,12 +200,12 @@ def show_menu():
     result = input(f"\n{logo}: Make a selection: >>> ")
     try: 
         print(f"{logo}: You selected: [ {result} ]") 
+        run_spinner()
         if result == '1':
             show_books()
         elif result == '2':
             show_stores()
         elif result == '3':
-            run_spinner()
             print(f"\n{logo}: Which User Account ID?")
             print(f"{logo}: Press [ 1 ] for Ryan ")
             print(f"{logo}: Press [ 2 ] for Gabriel ")
@@ -222,7 +227,7 @@ def show_menu():
             print(f"{logo}: See you next time 👋")
             close_db()
         else:
-            print(f"{logo}: Input not recognized: [ {result} ]")
+            print(f"{logo}: Input not recognized: [ {result} ]...👀")
     except Exception as e:
         print(f"{logo}: Whoa let's try that again: [ {e} ]...👀")
         pass
@@ -230,10 +235,8 @@ def show_menu():
 # Start program loop
 while IS_RUNNING:
     if USER_ID != 0:
-        run_spinner()
         show_wishlist_menu()
     else:
-        run_spinner()
         show_menu()
         
 
