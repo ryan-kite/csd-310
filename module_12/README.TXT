@@ -1,14 +1,16 @@
 Author: Ryan Kite
 email: ryankiter@gmail.com
-discord: FooBar909_(RK)#9403
-
-ZIP FILE CONTENTS
--- README.TXT
--- whatabook_init.sql
--- whatabook.py
--- Test Case Template (Ryan Kite Test Case.docx)
 
 Hello - Please follow these steps to run the project
+
+0. Download kite-whatabook.zip
+
+    ZIP FILE CONTENTS
+    -- README.TXT
+    -- whatabook_init.sql
+    -- whatabook.py
+    -- Test Case Template (Ryan Kite Test Case.docx)
+
 
 1. Backup Your Database [OPTIONAL]
     
