@@ -6,6 +6,7 @@
     Used By Student: Ryan Kite for Module 7/8 project populate database
 */
 
+
 -- drop test user if exists 
 DROP USER IF EXISTS 'pysports_user'@'localhost';
 

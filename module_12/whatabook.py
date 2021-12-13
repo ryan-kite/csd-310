@@ -1,7 +1,7 @@
 '''
 Ryan Kite
 CSD 310 
-Module 10
+Module 10, 11, 12
 Assignement WhatABook 
 '''
 import time
@@ -9,7 +9,9 @@ import sys
 import mysql.connector
 from mysql.connector import errorcode
 
-# for displaying results as mysql tables
+# WARNING
+# PLEASE INSTALL THIS LIBRARY
+# its for displaying results as mysql tables in the python shell
 # pip install tabulate
 from tabulate import tabulate
 
@@ -98,50 +100,77 @@ def show_available_books():
     print(tabulate(results, headers=['book_id', 'book_name', 'author', 'details'], tablefmt='psql'))
     # get book_id from user
     try: 
-        book_id = int(input(f"\n{logo}: Enter a book_id to add it to your Wishlist: >>> "))
-        print(f"{logo}: Entered book_id [{book_id}]")
-        cursor.execute(f'''SELECT book_id
-            FROM book WHERE book_id 
-            NOT IN (SELECT book_id from wishlist where user_id = {USER_ID});''')
-        book_ids = cursor.fetchall()  
-        # print("book_ids", book_ids) 
-        # print("book_ids", type(book_ids))
-        book_id_list = []
-        for item in book_ids:
-            book_id_list.append(item[0])
-            # print(book_id_list)
-        # validate book selection against book_ids
-        if book_id in book_id_list:
-            # print(f"book_id: {book_id} == {book_id_list}") 
-            is_valid = True
-            print(f"{logo}: valid book entry...✅")
-            cursor = DB.cursor()
-            cursor.execute(f'''INSERT INTO 
-                    wishlist (user_id, book_id)
-                    VALUES ({USER_ID}, {book_id});''')
-            DB.commit()
-            print(f"{logo}: Added book to Wishlist")
-            show_wishlist()
-        else:
-            raise Exception("book_id was not found.")    
-          
+        print(f"{logo}: Enter book_id to add to Wishlist: ")
+        print(f"{logo}: Enter [ x ] to go back: ")
+        book_id = input(f"\n{logo}: >>> ")
+        print(f"{logo}: Entered [{book_id}]")
+        if book_id.lower().strip() == 'x':
+            show_wishlist_menu()
+        elif book_id:
+            book_id = int(book_id)
+            cursor.execute(f'''SELECT book_id
+                FROM book WHERE book_id 
+                NOT IN (SELECT book_id from wishlist where user_id = {USER_ID});''')
+            book_ids = cursor.fetchall()  
+            # print("book_ids", book_ids) 
+            # print("book_ids", type(book_ids))
+            book_id_list = []
+            for item in book_ids:
+                book_id_list.append(item[0])
+                # print(book_id_list)
+            # validate book selection against book_ids
+            if book_id in book_id_list:
+                # print(f"book_id: {book_id} == {book_id_list}") 
+                print(f"{logo}: valid book entry...✅")
+                cursor = DB.cursor()
+                cursor.execute(f'''INSERT INTO 
+                        wishlist (user_id, book_id)
+                        VALUES ({USER_ID}, {book_id});''')
+                DB.commit()
+                print(f"{logo}: Added book to Wishlist")
+                show_wishlist()
+            else:
+                raise Exception("book_id was not found.")    
     except Exception as e:
         print(f"{logo}: Whoa let's try that again: [ {e} ]...👀")
         show_wishlist_menu()
         
 def remove_book():
-    global DB
     # show wishlist
     show_wishlist()
-    # get book_id to be removed
-    book_id = int(input(f"\n{logo}: Enter book_id to be removed: >>> "))
-    # delete (user_id, book_id) from wishlist
+    # get list of book_ids that can be deleted to validate against the selection
     DB = mysql.connector.connect(**config) 
     cursor = DB.cursor()
-    cursor.execute(f"DELETE FROM wishlist WHERE user_id={USER_ID} AND book_id={book_id};")
-    DB.commit()
-    print(f"{logo}: Deleted book_id: [{book_id}] from Wishlist...❌")
-    show_wishlist()
+    cursor.execute(f'''SELECT book_id FROM wishlist WHERE user_id={USER_ID};''')
+    book_ids = cursor.fetchall() 
+    # print(book_ids)
+    book_id_list = []
+    for item in book_ids:
+        book_id_list.append(item[0])
+    # get book_id to be removed
+    try:
+        print(f"{logo}: Enter book_id to be removed: ")
+        print(f"{logo}: Enter [ x ] to go back: ")
+        book_id = input(f"\n{logo}: >>> ")
+        print(f"{logo}: Entered [{book_id}]")
+        if book_id.lower().strip() == 'x':  
+            show_wishlist_menu()
+        elif book_id:
+            book_id = int(book_id)
+            if book_id in book_id_list:
+                DB = mysql.connector.connect(**config) 
+                cursor = DB.cursor()
+                cursor.execute(f"DELETE FROM wishlist WHERE user_id={USER_ID} AND book_id={book_id};")
+                DB.commit()
+                print(f"{logo}: Deleted book_id: [{book_id}] from Wishlist...❌")
+                show_wishlist()
+            else:
+                raise Exception("book_id was not found.") 
+
+    except Exception as e:
+        print(f"{logo}: Whoa let's try that again: [ {e} ]...👀")
+        show_wishlist_menu()
+
 
 # display all books
 def show_books():
