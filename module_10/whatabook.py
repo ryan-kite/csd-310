@@ -28,22 +28,20 @@ logo = "WhatABook 📖"
 DB = None
 
 # loader
+import itertools, sys
+spinner = itertools.cycle('▖▘▝▗')
 def run_spinner():
-    for i in range(2):
-        for cursor in '\\|/-':
-            time.sleep(0.1)
-            # Use '\r' to move cursor back to line beginning
-            # Or use '\b' to erase the last character
-            sys.stdout.write('{}'.format(cursor))
-            # Force Python to write data into terminal.
-            sys.stdout.flush()
-            sys.stdout.write("\r") #carriage return
+    for i in range(12):
+        sys.stdout.write(next(spinner))   # write the next character
+        sys.stdout.flush()                # flush stdout buffer (actual character display)
+        sys.stdout.write('\b')            # erase the last written char
+        time.sleep(0.1)                   # pause between each frame
 
 def get_db():
     global DB
     try:
         """ try/catch block for handling potential MySQL database errors """ 
-        DB = mysql.connector.connect(**config) # connect to the pysports database 
+        DB = mysql.connector.connect(**config) 
         # output the connection status 
         # print("\n Database user [{}] connected to MySQL on host [{}] with database [{}]".format(config["user"], config["host"], config["database"]))
         # Cursor Example
@@ -58,14 +56,14 @@ def get_db():
         else:
             print(err)
     finally:
-        print("""\n\n\tclosing connection to MySQL """)
+        print("""\n\n\tclosing connection """)
         DB.close()
 
 def close_db():
     global DB
     try: 
         DB.close()
-        print("""\n\tclosing connection to MySQL """)
+        print("""\n\tclosing connection """)
     except AttributeError as e:
         print(f"DB was not used, skipping close action.")            
 
@@ -74,16 +72,18 @@ def show_wishlist():
     global DB
     DB = mysql.connector.connect(**config) 
     cursor = DB.cursor()
-    cursor.execute(f'''SELECT wishlist.user_id, user.first_name, user.last_name, wishlist.book_id, book.book_name
+    cursor.execute(f'''SELECT wishlist.user_id, user.first_name, user.last_name, wishlist.book_id, book.book_name, store.store_id, store.location
     FROM wishlist
     INNER JOIN user
     ON user.user_id = wishlist.user_id  
     INNER JOIN book
     ON wishlist.book_id = book.book_id
+    INNER JOIN store
+    ON book.store_id = store.store_id
     WHERE user.user_id = {USER_ID}''')
     results = cursor.fetchall()
     print(f"\n{logo}: Displaying Wishlist Books \n")
-    print(tabulate(results, headers=['user_id', 'first_name', 'last_name', 'book_id', 'book_name'], tablefmt='psql'))
+    print(tabulate(results, headers=['user_id', 'first_name', 'last_name', 'book_id', 'book_name', 'store_id', 'location'], tablefmt='psql'))
 
 # display books not in users wishlist that they can add
 def show_available_books():
@@ -97,7 +97,6 @@ def show_available_books():
     print(f"\n{logo}: Available Books \n")
     print(tabulate(results, headers=['book_id', 'book_name', 'author', 'details'], tablefmt='psql'))
     # get book_id from user
-    run_spinner()
     try: 
         book_id = int(input(f"\n{logo}: Enter a book_id to add it to your Wishlist: >>> "))
         print(f"{logo}: Entered book_id [{book_id}]")
@@ -135,7 +134,6 @@ def remove_book():
     # show wishlist
     show_wishlist()
     # get book_id to be removed
-    run_spinner()
     book_id = int(input(f"\n{logo}: Enter book_id to be removed: >>> "))
     # delete (user_id, book_id) from wishlist
     DB = mysql.connector.connect(**config) 
@@ -148,9 +146,9 @@ def remove_book():
 # display all books
 def show_books():
     global DB
-    DB = mysql.connector.connect(**config) # connect to the pysports database 
+    DB = mysql.connector.connect(**config) 
     cursor = DB.cursor()
-    cursor.execute("SELECT book_id, book_name, details, author FROM book;")
+    cursor.execute("SELECT book_id, book_name, author, details FROM book;")
     results = cursor.fetchall()
     print(f"\n{logo}: Displaying Book Records \n")
     print(tabulate(results, headers=['book_id', 'book_name', 'author', 'details'], tablefmt='psql')) 
@@ -158,12 +156,12 @@ def show_books():
 # display stores
 def show_stores():
     global DB
-    DB = mysql.connector.connect(**config) # connect to the pysports database 
+    DB = mysql.connector.connect(**config) 
     cursor = DB.cursor()
-    cursor.execute("SELECT store_id, locale FROM store;")
+    cursor.execute("SELECT store_id, address, location FROM store;")
     results = cursor.fetchall()
     print(f"\n{logo}: Store Locations \n")
-    print(tabulate(results, headers=['store_id', 'locale'], tablefmt='psql'))
+    print(tabulate(results, headers=['store_id', 'address', 'location'], tablefmt='psql'))
 
 # display wishlist menu
 def show_wishlist_menu():
@@ -174,7 +172,6 @@ def show_wishlist_menu():
     print(f"{logo}: Press [ 2 ] Add Book")
     print(f"{logo}: Press [ 3 ] Remove Book")
     print(f"{logo}: Press [ x ] Exit to Main menu")
-    run_spinner()
     result = input(f"\n{logo}: Make a selection: >>> ")
     print(f"{logo}: You selected: [ {result} ]")
     if result == '1':
@@ -190,13 +187,11 @@ def show_wishlist_menu():
 
 # display main menu
 def show_menu():
-    
-    print(f"\n{logo}: Main Menu ")
+    print(f"\n{logo}: [Main Menu] ")
     print(f"{logo}: Press [ 1 ] View Books")
     print(f"{logo}: Press [ 2 ] View Store Locations")
     print(f"{logo}: Press [ 3 ] My Account")
     print(f"{logo}: Press [ x ] Exit")
-    run_spinner()
     result = input(f"\n{logo}: Make a selection: >>> ")
     try: 
         print(f"{logo}: You selected: [ {result} ]") 
@@ -205,12 +200,12 @@ def show_menu():
         elif result == '2':
             show_stores()
         elif result == '3':
+            run_spinner()
             print(f"\n{logo}: Which User Account ID?")
             print(f"{logo}: Press [ 1 ] for Ryan ")
             print(f"{logo}: Press [ 2 ] for Gabriel ")
             print(f"{logo}: Press [ 3 ] for Aila ")
             try:
-                run_spinner()
                 result = int(input(f"\n{logo}: Enter Account ID: >>> ").strip())
                 global USER_ID
                 if result < 4:
@@ -240,4 +235,5 @@ while IS_RUNNING:
     else:
         run_spinner()
         show_menu()
+        
 
