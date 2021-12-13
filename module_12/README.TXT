@@ -6,6 +6,7 @@ ZIP FILE CONTENTS
 -- README.TXT
 -- whatabook_init.sql
 -- whatabook.py
+-- Test Case Template (Ryan Kite Test Case.docx)
 
 Hello - Please follow these steps to run the project
 
