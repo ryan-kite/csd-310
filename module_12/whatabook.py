@@ -1,20 +1,37 @@
 '''
+
 Ryan Kite
 CSD 310 
-Module 10, 11, 12
-Assignement WhatABook 
-'''
-import time
-import sys
-import mysql.connector
-from mysql.connector import errorcode
+Module 10, 11, 12 (combined work and progress)
+Capstone Assignement WhatABook 
 
-# WARNING
+Code attribution:
+The run_spinner() method was inspired from a post on StacK Overflow
+https://stackoverflow.com/questions/4995733/how-to-create-a-spinning-command-line-cursor
+
+The SQL connection code is similar as used in previous assignments.
+
+Requirement:
+There is 1 dependency that needs to be installed for the project, called tabulate. (See below or in the readme.txt)
+It will display query result in the same way MySQL does in the shell. 
+
+IMPORTS:
+'''
+import time             # Used for the spinner.
+import sys              # Used for the spinner.
+import itertools        # Used for the spinner.
+import mysql.connector  # Allows us to do CRUD actions with MySQL.
+from mysql.connector import errorcode   # If connector throws error.
+
+# WARNING WARNING WARNING WARNING
 # PLEASE INSTALL THIS LIBRARY
-# its for displaying results as mysql tables in the python shell
+# its for displaying results as a MySQL tables in the python shell
+# from your command prompt run: 
 # pip install tabulate
 from tabulate import tabulate
 
+
+# This is the MySQL connector payload.
 config = {
     "user": "whatabook_user",
     "password": "MySQL8IsGreat!",
@@ -23,15 +40,15 @@ config = {
     "raise_on_warnings": True
 }
 
-# Global variables
+# Global variables used in the app. 
 IS_RUNNING = True
 USER_ID = 0
 logo = "WhatABook 📖"
 DB = None
 
-# loader
-import itertools, sys
-spinner = itertools.cycle('◐◓◑◒')
+# Shows a spinner the in the python shell to simulate 
+# a loading effect between screens and actions.
+spinner = itertools.cycle('◐◓◑◒') # what the spinner cycles through. 
 def run_spinner():
     for i in range(16):
         sys.stdout.write(next(spinner))   # write the next character
@@ -39,6 +56,9 @@ def run_spinner():
         sys.stdout.write('\b')            # erase the last written char
         time.sleep(0.1)                   # pause between each frame
 
+# Handles generating a DB connection object and returns a cursor used to performs DB actions
+# It's assigned it to a global which was easier that having to pass it around between methods
+# for this small app I thinks thats OK. 
 def get_db():
     global DB
     try:
@@ -61,6 +81,7 @@ def get_db():
         print("""\n\n\tclosing connection """)
         DB.close()
 
+# Handles closing the DB when we are finished using it.
 def close_db():
     global DB
     try: 
@@ -69,7 +90,8 @@ def close_db():
     except AttributeError as e:
         print(f"DB was not used, skipping close action.")            
 
-# display wishlist books for user_id
+# Handles displaying wishlist books for the user_id
+# This method utilized 4 JOINS
 def show_wishlist():
     global DB
     DB = mysql.connector.connect(**config) 
@@ -87,7 +109,9 @@ def show_wishlist():
     print(f"\n{logo}: Displaying Wishlist Books \n")
     print(tabulate(results, headers=['user_id', 'first_name', 'last_name', 'book_id', 'book_name', 'store_id', 'location'], tablefmt='psql'))
 
-# display books not in users wishlist that they can add
+# Handles displaying books not in users wishlist that they can add
+# Also performs some deeper validation against the selected book
+# vs the book_list, with exception handling. With a go back option.
 def show_available_books():
     global DB
     DB = mysql.connector.connect(**config) 
@@ -134,7 +158,10 @@ def show_available_books():
     except Exception as e:
         print(f"{logo}: Whoa let's try that again: [ {e} ]...👀")
         show_wishlist_menu()
-        
+
+# This was an bonus function added in because I needed it.
+# Handles removing a books from wishlist, performs validation 
+# and has expection handling. With a go back option.
 def remove_book():
     # show wishlist
     show_wishlist()
@@ -171,8 +198,7 @@ def remove_book():
         print(f"{logo}: Whoa let's try that again: [ {e} ]...👀")
         show_wishlist_menu()
 
-
-# display all books
+# Handles displaying all books.
 def show_books():
     global DB
     DB = mysql.connector.connect(**config) 
@@ -182,7 +208,7 @@ def show_books():
     print(f"\n{logo}: Displaying Book Records \n")
     print(tabulate(results, headers=['book_id', 'book_name', 'author', 'details'], tablefmt='psql')) 
 
-# display stores
+# Handles displaying store information.
 def show_stores():
     global DB
     DB = mysql.connector.connect(**config) 
@@ -192,7 +218,7 @@ def show_stores():
     print(f"\n{logo}: Store Locations \n")
     print(tabulate(results, headers=['store_id', 'address', 'location'], tablefmt='psql'))
 
-# display wishlist menu
+# Handles displaying wishlist menu for active user + exception handling.
 def show_wishlist_menu():
     global USER_ID
     print(f"\n{logo}: [Wishlist Menu]")
@@ -219,7 +245,7 @@ def show_wishlist_menu():
         print(f"{logo}: Whoa let's try that again: [ {e} ]...👀")
         pass
 
-# display main menu
+# Handles displaying main public menu + exception handling.
 def show_menu():
     print(f"\n{logo}: [Main Menu] ")
     print(f"{logo}: Press [ 1 ] View Books")
@@ -261,11 +287,10 @@ def show_menu():
         print(f"{logo}: Whoa let's try that again: [ {e} ]...👀")
         pass
 
-# Start program loop
+# Handles the program loop and will always return the appropriate menu 
+# based on user_id state.
 while IS_RUNNING:
     if USER_ID != 0:
         show_wishlist_menu()
     else:
         show_menu()
-        
-
